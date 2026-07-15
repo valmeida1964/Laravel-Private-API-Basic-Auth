@@ -10,6 +10,7 @@ use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -51,7 +52,15 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        //
+        //  Check if there is an error in the HTTP basic auth (no credentials)
+        $exceptions->render (function(UnauthorizedHttpException $e, Request $request){
+            if ($request->is('api/*')) {
+                return ApiResponse::error(
+                    message: "HTTP Basic authentication required.",
+                    code: 401,
+                );
+            }
+        });
 
         // exception for everything else ?!
         $exceptions->render(function(\Exception $e, Request $request){
