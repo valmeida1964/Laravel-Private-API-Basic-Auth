@@ -16,6 +16,6 @@ class WithBasicAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return Auth::onceBasic('email',['active'=> 1]) ?:next($request);
+        return Auth::onceBasic('email',['active'=> 1]) ?: $next($request);
     }
 }
